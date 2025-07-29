@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>n8n Terraform Setup Wizard</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <header id="main-header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo" id="logo">n8n Terraform Setup Wizard</div>
+                <div class="security-badge" id="security-badge">
+                    <i class="fas fa-lock"></i> All data stays on your computer
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="main-content" id="main-content">
+            <div class="sidebar" id="sidebar">
+                <div class="steps-container" id="steps-container">
+                    <div class="step active" id="step-1" data-step="1">
+                        <div class="step-number">1</div>
+                        <div class="step-content">
+                            <div class="step-title">Prerequisites</div>
+                            <div class="step-description">Ensure you have all required tools</div>
+                        </div>
+                    </div>
+                    <div class="step" id="step-2" data-step="2">
+                        <div class="step-number">2</div>
+                        <div class="step-content">
+                            <div class="step-title">AWS Credentials</div>
+                            <div class="step-description">Set up your AWS access</div>
+                        </div>
+                    </div>
+                    <div class="step" id="step-3" data-step="3">
+                        <div class="step-number">3</div>
+                        <div class="step-content">
+                            <div class="step-title">SSH Key Setup</div>
+                            <div class="step-description">Configure SSH access</div>
+                        </div>
+                    </div>
+                    <div class="step" id="step-4" data-step="4">
+                        <div class="step-number">4</div>
+                        <div class="step-content">
+                            <div class="step-title">Domain & DNS</div>
+                            <div class="step-description">Set up your domain with Cloudflare</div>
+                        </div>
+                    </div>
+                    <div class="step" id="step-5" data-step="5">
+                        <div class="step-number">5</div>
+                        <div class="step-content">
+                            <div class="step-title">Review & Deploy</div>
+                            <div class="step-description">Finalize and deploy your n8n instance</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-container" id="form-container">
+                <!-- Step 1: Prerequisites -->
+                <div class="step-form active" id="step-form-1">
+                    <h2 class="form-title" id="prerequisites-title">Prerequisites Check</h2>
+                    <div class="info-box" id="prerequisites-info">
+                        <div class="info-box-title">Before You Begin</div>
+                        <div class="info-box-content">
+                            This wizard will guide you through setting up n8n on AWS using Terraform. All information entered here stays on your computer and is used only to generate your configuration files.
+                        </div>
+                    </div>
+
+                    <div class="form-group" id="terraform-check">
+                        <div class="checkbox-container">
+                            <input type="checkbox" id="terraform-installed">
+                            <label for="terraform-installed">I have Terraform installed</label>
+                        </div>
+                        <div class="help-text">
+                            Terraform is required to deploy your infrastructure. 
+                            <a href="https://www.terraform.io/downloads.html" target="_blank">Download Terraform</a>
+                        </div>
+                    </div>
+
+                    <div class="form-group" id="aws-account-check">
+                        <div class="checkbox-container">
+                            <input type="checkbox" id="aws-account">
+                            <label for="aws-account">I have an AWS account</label>
+                        </div>
+                        <div class="help-text">
+                            You need an AWS account to deploy your n8n instance. 
+                            <a href="https://aws.amazon.com/" target="_blank">Sign up for AWS</a>
+                        </div>
+                    </div>
+
+                    <div class="form-group" id="cloudflare-check">
+                        <div class="checkbox-container">
+                            <input type="checkbox" id="cloudflare-account">
+                            <label for="cloudflare-account">I have a Cloudflare account</label>
+                        </div>
+                        <div class="help-text">
+                            Cloudflare is used for DNS management. 
+                            <a href="https://www.cloudflare.com/" target="_blank">Sign up for Cloudflare</a>
+                        </div>
+                    </div>
+
+                    <div class="form-group" id="domain-check">
+                        <div class="checkbox-container">
+                            <input type="checkbox" id="domain-name">
+                            <label for="domain-name">I have a domain name</label>
+                        </div>
+                        <div class="help-text">
+                            <strong>Recommended:</strong> Purchase a domain directly from Cloudflare for easier setup. 
+                            <a href="https://www.cloudflare.com/products/registrar/" target="_blank">Buy a domain from Cloudflare</a>
+                            <br><br>
+                            Alternatively, you can use domains from other registrars like 
+                            <a href="https://www.namecheap.com/" target="_blank">Namecheap</a> or 
+                            <a href="https://domains.google/" target="_blank">Google Domains</a>, but you'll need to change nameservers.
+                        </div>
+                    </div>
+
+                    <h3 id="resources-title">Helpful Resources</h3>
+                    <div class="resources-container" id="resources-container">
+                        <a href="https://learn.hashicorp.com/tutorials/terraform/install-cli" target="_blank" class="resource-link" id="terraform-resource">
+                            <i class="fas fa-book"></i> Terraform Installation Guide
+                        </a>
+                        <a href="https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_access-keys.html" target="_blank" class="resource-link" id="aws-resource">
+                            <i class="fas fa-book"></i> AWS Access Keys Guide
+                        </a>
+                        <a href="https://docs.github.com/en/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent" target="_blank" class="resource-link" id="ssh-resource">
+                            <i class="fas fa-book"></i> SSH Key Generation Guide
+                        </a>
+                        <a href="https://developers.cloudflare.com/fundamentals/get-started/basic-tasks/find-account-and-zone-ids/" target="_blank" class="resource-link" id="cloudflare-resource">
+                            <i class="fas fa-book"></i> Finding Cloudflare Zone ID
+                        </a>
+                    </div>
+
+                    <div class="button-container" id="step1-buttons">
+                        <button class="btn btn-secondary hidden" id="prev-btn-1">Previous</button>
+                        <button class="btn btn-primary" id="next-btn-1">Next</button>
+                    </div>
+                </div>
+
+                <!-- Step 2: AWS Credentials -->
+                <div class="step-form" id="step-form-2">
+                    <h2 class="form-title" id="aws-title">AWS Credentials</h2>
+                    <div class="info-box" id="aws-info">
+                        <div class="info-box-title">AWS Access Keys</div>
+                        <div class="info-box-content">
+                            You need to create an IAM user with programmatic access to AWS. Click the guide below for step-by-step instructions.
+                        </div>
+                    </div>
+
+                    <div class="guide-toggle" id="aws-guide-toggle">
+                        <i class="fas fa-chevron-down"></i> Show AWS IAM User Setup Guide
+                    </div>
+                    <div class="guide-content" id="aws-guide-content">
+                        <div class="guide-step">
+                            <div class="guide-step-title">
+                                <span class="guide-step-number">1</span> Sign in to AWS Management Console
+                            </div>
+                            <div class="guide-step-content">
+                                <p>Go to <a href="https://aws.amazon.com/console/" target="_blank">AWS Management Console</a> and sign in to your account. If you don't have an account, you'll need to create one.</p>
+                            </div>
+                        </div>
+                        <div class="guide-step">
+                            <div class="guide-step-title">
+                                <span class="guide-step-number">2</span> Navigate to IAM Service
+                            </div>
+                            <div class="guide-step-content">
+                                <p>In the AWS Management Console, search for "IAM" in the search bar at the top and select the IAM service.</p>
+                            </div>
+                        </div>
+                        <div class="guide-step">
+                            <div class="guide-step-title">
+                                <span class="guide-step-number">3</span> Create a New IAM User
+                            </div>
+                            <div class="guide-step-content">
+                                <p>In the IAM dashboard, click on "Users" in the left sidebar, then click the "Add users" button.</p>
+                            </div>
+                        </div>
+                        <div class="guide-step">
+                            <div class="guide-step-title">
+                                <span class="guide-step-number">4</span> Set User Details
+                            </div>
+                            <div class="guide-step-content">
+                                <p>Enter a username (e.g., "terraform-n8n") and select "Access key - Programmatic access" as the AWS credential type.</p>
+                            </div>
+                        </div>
+                        <div class="guide-step">
+                            <div class="guide-step-title">
+                                <span class="guide-step-number">5</span> Set Permissions
+                            </div>
+                            <div class="guide-step-content">
+                                <p>Click "Next: Permissions" and select "Attach existing policies directly". For this setup, you'll need the following permissions:</p>
+                                <ul>
+                                    <li>AmazonEC2FullAccess</li>
+                                    <li>AmazonVPCFullAccess</li>
+                                </ul>
+                                <p>For a more secure setup, you can create a custom policy with only the necessary permissions.</p>
+                            </div>
+                        </div>
+                        <div class="guide-step">
+                            <div class="guide-step-title">
+                                <span class="guide-step-number">6</span> Review and Create User
+                            </div>
+                            <div class="guide-step-content">
+                                <p>Click "Next: Tags" (you can skip adding tags), then "Next: Review", and finally "Create user".</p>
+                            </div>
+                        </div>
+                        <div class="guide-step">
+                            <div class="guide-step-title">
+                                <span class="guide-step-number">7</span> Save Your Credentials
+                            </div>
+                            <div class="guide-step-content">
+                                <p>After creating the user, you'll see the Access key ID and Secret access key. <strong>This is the only time you'll be able to view the secret access key</strong>, so make sure to copy both values and store them securely.</p>
+                                <p>Enter these values in the form below.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group" id="aws-region-group">
+                        <label for="aws-region" class="form-label">AWS Region</label>
+                        <select id="aws-region" class="form-input">
+                            <option value="us-east-1">US East (N. Virginia) - us-east-1</option>
+                            <option value="us-east-2">US East (Ohio) - us-east-2</option>
+                            <option value="us-west-1">US West (N. California) - us-west-1</option>
+                            <option value="us-west-2">US West (Oregon) - us-west-2</option>
+                            <option value="eu-west-1">EU (Ireland) - eu-west-1</option>
+                            <option value="eu-central-1">EU (Frankfurt) - eu-central-1</option>
+                            <option value="ap-northeast-1">Asia Pacific (Tokyo) - ap-northeast-1</option>
+                            <option value="ap-southeast-1">Asia Pacific (Singapore) - ap-southeast-1</option>
+                            <option value="ap-southeast-2">Asia Pacific (Sydney) - ap-southeast-2</option>
+                        </select>
+                        <span class="help-text">Choose the AWS region closest to your location for better performance.</span>
+                    </div>
+
+                    <div class="form-group" id="access-key-group">
+                        <label for="access-key" class="form-label">AWS Access Key</label>
+                        <input type="text" id="access-key" class="form-input" placeholder="AKIAIOSFODNN7EXAMPLE">
+                        <span class="help-text">Your AWS access key ID (starts with 'AKIA').</span>
+                    </div>
+
+                    <div class="form-group" id="secret-key-group">
+                        <label for="secret-key" class="form-label">AWS Secret Key</label>
+                        <input type="password" id="secret-key" class="form-input" placeholder="wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY">
+                        <span class="help-text">Your AWS secret access key.</span>
+                    </div>
+
+                    <div class="form-group" id="ami-id-group">
+                        <label for="ami-id" class="form-label">AMI ID (Optional)</label>
+                        <input type="text" id="ami-id" class="form-input" placeholder="ami-08a6efd148b1f7504">
+                        <span class="help-text">Amazon Machine Image ID. The default is an Amazon Linux 2 AMI for the selected region.</span>
+                    </div>
+
+                    <div class="button-container" id="step2-buttons">
+                        <button class="btn btn-secondary" id="prev-btn-2">Previous</button>
+                        <button class="btn btn-primary" id="next-btn-2">Next</button>
+                    </div>
+                </div>
+
+                <!-- Step 3: SSH Key Setup -->
+                <div class="step-form" id="step-form-3">
+                    <h2 class="form-title" id="ssh-title">SSH Key Setup</h2>
+                    <div class="info-box" id="ssh-info">
+                        <div class="info-box-title">SSH Access</div>
+                        <div class="info-box-content">
+                            An SSH key pair is required to securely connect to your EC2 instance. If you don't have one, you can generate it using the commands below.
+                        </div>
+                    </div>
+
+                    <div class="form-group" id="ssh-key-group">
+                        <label class="form-label">Generate SSH Key (if needed)</label>
+                        <div class="terminal" id="ssh-terminal" style="max-width: 100%; overflow-x: hidden;">
+                            <!-- Terminal content will be added via JavaScript -->
+                        </div>
+                    </div>
+
+                    <div class="form-group" id="public-key-path-group">
+                        <label for="public-key-path" class="form-label">Public Key Path</label>
+                        <input type="text" id="public-key-path" class="form-input" placeholder="~/.ssh/id_rsa.pub">
+                        <span class="help-text">Path to your SSH public key file. On Windows, use format like C:/Users/YourName/.ssh/id_rsa.pub</span>
+                    </div>
+
+                    <div class="button-container" id="step3-buttons">
+                        <button class="btn btn-secondary" id="prev-btn-3">Previous</button>
+                        <button class="btn btn-primary" id="next-btn-3">Next</button>
+                    </div>
+                </div>
+
+                <!-- Step 4: Domain & DNS -->
+                <div class="step-form" id="step-form-4">
+                    <h2 class="form-title" id="domain-title">Domain & DNS Configuration</h2>
+                    <div class="info-box" id="domain-info">
+                        <div class="info-box-title">Cloudflare DNS Setup</div>
+                        <div class="info-box-content">
+                            You need to set up Cloudflare for DNS management of your domain. This allows you to access your n8n instance using a custom domain name. Click the guide below for step-by-step instructions.
+                        </div>
+                    </div>
+
+                    <div class="guide-toggle" id="cloudflare-guide-toggle">
+                        <i class="fas fa-chevron-down"></i> Show Cloudflare Setup Guide
+                    </div>
+                    <div class="guide-content" id="cloudflare-guide-content">
+                        <div class="guide-step">
+                            <div class="guide-step-title">
+                                <span class="guide-step-number">1</span> Sign in to Cloudflare
+                            </div>
+                            <div class="guide-step-content">
+                                <p>Go to <a href="https://dash.cloudflare.com/login" target="_blank">Cloudflare Dashboard</a> and sign in to your account. If you don't have an account, you'll need to create one.</p>
+                            </div>
+                        </div>
+                        <div class="guide-step">
+                            <div class="guide-step-title">
+                                <span class="guide-step-number">2</span> Add Your Domain to Cloudflare
+                            </div>
+                            <div class="guide-step-content">
+                                <p>If you purchased your domain through Cloudflare, it's already set up. If not:</p>
+                                <ol>
+                                    <li>Click "Add a Site" on the Cloudflare dashboard</li>
+                                    <li>Enter your domain name and click "Add Site"</li>
+                                    <li>Select a plan (Free plan is sufficient for this setup)</li>
+                                    <li>Cloudflare will scan your DNS records</li>
+                                    <li>Review the DNS records and click "Continue"</li>
+                                    <li>Update your domain's nameservers at your registrar to the Cloudflare nameservers provided</li>
+                                </ol>
+                                <p><strong>Note:</strong> Nameserver changes can take 24-48 hours to propagate. Using a domain purchased directly from Cloudflare avoids this waiting period.</p>
+                            </div>
+                        </div>
+                        <div class="guide-step">
+                            <div class="guide-step-title">
+                                <span class="guide-step-number">3</span> Find Your Zone ID
+                            </div>
+                            <div class="guide-step-content">
+                                <p>Once your domain is added to Cloudflare:</p>
+                                <ol>
+                                    <li>Select your domain from the dashboard</li>
+                                    <li>On the right sidebar, scroll down to the "API" section</li>
+                                    <li>Your Zone ID is displayed there</li>
+                                </ol>
+                                <p>Copy this Zone ID and paste it in the form below.</p>
+                            </div>
+                        </div>
+                        <div class="guide-step">
+                            <div class="guide-step-title">
+                                <span class="guide-step-number">4</span> Create an API Token
+                            </div>
+                            <div class="guide-step-content">
+                                <p>To create an API token with the necessary permissions:</p>
+                                <ol>
+                                    <li>In the Cloudflare dashboard, click on your profile icon in the top right</li>
+                                    <li>Select "My Profile"</li>
+                                    <li>Click on the "API Tokens" tab</li>
+                                    <li>Click "Create Token"</li>
+                                    <li>Select "Create Custom Token"</li>
+                                    <li>Name your token (e.g., "Terraform n8n")</li>
+                                    <li>Under "Permissions", add:
+                                        <ul>
+                                            <li>Zone - DNS - Edit</li>
+                                            <li>Zone - Zone - Read</li>
+                                        </ul>
+                                    </li>
+                                    <li>Under "Zone Resources", select "Include - Specific zone - Your Domain"</li>
+                                    <li>Click "Continue to summary" and then "Create Token"</li>
+                                </ol>
+                                <p>Copy the generated token and paste it in the form below. <strong>Note: This token will only be displayed once.</strong></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group" id="use-cloudflare-group">
+                        <div class="checkbox-container">
+                            <input type="checkbox" id="use-cloudflare" checked>
+                            <label for="use-cloudflare">Use Cloudflare for DNS</label>
+                        </div>
+                        <span class="help-text">Uncheck only if you want to manage DNS manually.</span>
+                    </div>
+
+                    <div id="cloudflare-settings">
+                        <div class="form-group" id="dns-name-group">
+                            <label for="dns-name" class="form-label">DNS Name</label>
+                            <input type="text" id="dns-name" class="form-input" placeholder="n8n.yourdomain.com">
+                            <span class="help-text">The subdomain where your n8n instance will be accessible.</span>
+                        </div>
+
+                        <div class="form-group" id="cloudflare-api-token-group">
+                            <label for="cloudflare-api-token" class="form-label">Cloudflare API Token</label>
+                            <input type="password" id="cloudflare-api-token" class="form-input" placeholder="Your Cloudflare API token">
+                            <span class="help-text">Create a token with Zone.DNS Edit permissions for your domain.</span>
+                        </div>
+
+                        <div class="form-group" id="cloudflare-zone-id-group">
+                            <label for="cloudflare-zone-id" class="form-label">Cloudflare Zone ID</label>
+                            <input type="text" id="cloudflare-zone-id" class="form-input" placeholder="Your Cloudflare Zone ID">
+                            <span class="help-text">Find this in your Cloudflare dashboard under Domain Overview.</span>
+                        </div>
+                    </div>
+
+                    <div class="button-container" id="step4-buttons">
+                        <button class="btn btn-secondary" id="prev-btn-4">Previous</button>
+                        <button class="btn btn-primary" id="next-btn-4">Next</button>
+                    </div>
+                </div>
+
+                <!-- Step 5: Review & Deploy -->
+                <div class="step-form" id="step-form-5">
+                    <h2 class="form-title" id="review-title">Review & Deploy</h2>
+                    <div class="info-box" id="review-info">
+                        <div class="info-box-title">Final Review</div>
+                        <div class="info-box-content">
+                            Review your configuration before generating the terraform.tfvars file and initializing Terraform.
+                        </div>
+                    </div>
+
+                    <div class="form-group" id="review-group">
+                        <label class="form-label">Configuration Summary</label>
+                        <div class="terminal" id="config-terminal" style="max-width: 100%; overflow-x: hidden;">
+                            <!-- Terminal content will be added via JavaScript -->
+                        </div>
+                    </div>
+
+                    <div class="form-group" id="deploy-group" style="max-width: 800px;">
+                        <button class="btn btn-primary" id="generate-btn">Generate terraform.tfvars</button>
+                        <div class="terminal hidden" id="deploy-terminal" style="max-width: 100%; overflow-x: hidden;">
+                            <!-- Terminal output will be added here by JavaScript -->
+                        </div>
+                    </div>
+
+                    <div class="progress-container hidden" id="progress-container">
+                        <div class="progress-bar" id="progress-bar">
+                            <div class="progress-fill" id="progress-fill"></div>
+                        </div>
+                        <div class="progress-text">
+                            <span id="progress-status">Initializing...</span>
+                            <span id="progress-percentage">0%</span>
+                        </div>
+                    </div>
+
+                    <div class="alert hidden" id="result-alert">
+                        <!-- Alert content will be added here by JavaScript -->
+                    </div>
+
+                    <div class="button-container" id="step5-buttons">
+                        <button class="btn btn-secondary" id="prev-btn-5">Previous</button>
+                        <button class="btn btn-primary" id="run-terraform-btn">Run Terraform</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer id="main-footer">
+        <div class="container">
+            <p>n8n Terraform Setup Wizard | All data is processed locally on your machine</p>
+        </div>
+    </footer>
+
+    <!-- Confirmation Modal -->
+    <div class="modal-overlay" id="confirmation-modal">
+        <div class="modal-alert">
+            <div class="modal-alert-header">
+                <i class="fas fa-exclamation-circle"></i>
+                <div class="modal-alert-title" id="modal-title">Confirmation</div>
+            </div>
+            <div class="modal-alert-content" id="modal-content">
+                <!-- Modal content will be dynamically inserted here -->
+            </div>
+            <div class="modal-alert-buttons">
+                <button class="modal-alert-btn modal-alert-btn-secondary" id="modal-cancel-btn">Cancel</button>
+                <button class="modal-alert-btn modal-alert-btn-primary" id="modal-confirm-btn">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
