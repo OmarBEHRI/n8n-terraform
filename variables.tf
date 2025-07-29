@@ -37,20 +37,20 @@ variable "dns_name" {
 }
 
 variable "use_cloudflare" {
-  description = "Whether to use Cloudflare for DNS"
+  description = "Set to true to use Cloudflare for DNS management"
   type        = bool
   default     = true
 }
 
 variable "cloudflare_api_token" {
-  description = "Cloudflare API token (required if use_cloudflare is true)"
+  description = "Cloudflare API token for DNS management"
   type        = string
   default     = ""
   sensitive   = true
 }
 
 variable "cloudflare_zone_id" {
-  description = "Cloudflare zone ID (required if use_cloudflare is true)"
+  description = "Cloudflare zone ID for your domain"
   type        = string
   default     = ""
 }

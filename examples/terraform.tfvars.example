@@ -1,0 +1,14 @@
+# AWS Credentials
+access_key = "YOUR_AWS_ACCESS_KEY"
+secret_key = "YOUR_AWS_SECRET_KEY"
+region = "us-east-1"
+ami_id = "ami-08a6efd148b1f7504" # Example: Amazon Linux 2 AMI for us-east-1
+
+# SSH Key
+public_key_path = "~/.ssh/id_rsa.pub" # Path to your SSH public key
+
+# Cloudflare DNS Configuration
+use_cloudflare = true # Enable Cloudflare DNS integration
+cloudflare_api_token = "YOUR_CLOUDFLARE_API_TOKEN"
+cloudflare_zone_id = "YOUR_CLOUDFLARE_ZONE_ID"
+dns_name = "n8n.yourdomain.com"

@@ -10,7 +10,7 @@ output "instance_public_ip" {
 
 output "instance_dns" {
   description = "DNS name for accessing the n8n instance"
-  value       = var.use_cloudflare ? "http://${var.dns_name}" : "http://${aws_eip.n8n_eip.public_ip}"
+  value       = "http://${var.dns_name}"
 }
 
 output "ssh_connection" {
