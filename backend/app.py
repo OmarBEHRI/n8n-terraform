@@ -169,6 +169,91 @@ def terraform_apply():
         'status': 'started'
     })
 
+# API endpoint to run terraform destroy
+@app.route('/api/terraform/destroy', methods=['POST'])
+def terraform_destroy():
+    command_id = f"destroy_{int(time.time())}"
+    
+    # Run the command in a separate thread
+    threading.Thread(
+        target=run_command,
+        args=(command_id, "terraform destroy -auto-approve"),
+        daemon=True
+    ).start()
+    
+    return jsonify({
+        'command_id': command_id,
+        'status': 'started'
+    })
+
+# API endpoint to check terraform state and get outputs
+@app.route('/api/terraform/status', methods=['GET'])
+def terraform_status():
+    tfstate_path = os.path.join(TERRAFORM_DIR, 'terraform.tfstate')
+    
+    # Check if terraform.tfstate exists
+    if not file_exists(tfstate_path):
+        return jsonify({
+            'provisioned': False,
+            'message': 'No terraform state file found'
+        })
+    
+    try:
+        # Read the terraform state file
+        with open(tfstate_path, 'r') as f:
+            state_data = json.load(f)
+        
+        # Check if there are any resources in the state
+        resources = state_data.get('resources', [])
+        if not resources:
+            return jsonify({
+                'provisioned': False,
+                'message': 'No resources found in state file'
+            })
+        
+        # Try to get outputs using terraform output command
+        try:
+            result = subprocess.run(
+                ['terraform', 'output', '-json'],
+                cwd=TERRAFORM_DIR,
+                capture_output=True,
+                text=True,
+                timeout=30
+            )
+            
+            if result.returncode == 0:
+                outputs = json.loads(result.stdout)
+                return jsonify({
+                    'provisioned': True,
+                    'outputs': {
+                        'instance_id': outputs.get('instance_id', {}).get('value', ''),
+                        'instance_public_ip': outputs.get('instance_public_ip', {}).get('value', ''),
+                        'instance_dns': outputs.get('instance_dns', {}).get('value', ''),
+                        'ssh_connection': outputs.get('ssh_connection', {}).get('value', '')
+                    }
+                })
+            else:
+                # If terraform output fails, still return provisioned=True but without outputs
+                return jsonify({
+                    'provisioned': True,
+                    'message': 'Resources exist but could not retrieve outputs',
+                    'outputs': {}
+                })
+        
+        except (subprocess.TimeoutExpired, subprocess.SubprocessError, json.JSONDecodeError) as e:
+            # If terraform output fails, still return provisioned=True but without outputs
+            return jsonify({
+                'provisioned': True,
+                'message': f'Resources exist but could not retrieve outputs: {str(e)}',
+                'outputs': {}
+            })
+    
+    except (json.JSONDecodeError, FileNotFoundError) as e:
+        return jsonify({
+            'provisioned': False,
+            'message': f'Error reading state file: {str(e)}'
+        })
+
 # API endpoint to check command status
 @app.route('/api/command/<command_id>', methods=['GET'])
 def check_command(command_id):

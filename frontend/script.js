@@ -20,6 +20,22 @@ document.addEventListener('DOMContentLoaded', function() {
     const progressPercentage = document.getElementById('progress-percentage');
     const resultAlert = document.getElementById('result-alert');
     
+    // Instance status elements
+    const instanceStatusContainer = document.getElementById('instance-status-container');
+    const instanceUrlLink = document.getElementById('instance-url-link');
+    const instanceIp = document.getElementById('instance-ip');
+    const instanceId = document.getElementById('instance-id');
+    const sshCommand = document.getElementById('ssh-command');
+    const copySshBtn = document.getElementById('copy-ssh-btn');
+    const destroyInstanceBtn = document.getElementById('destroy-instance-btn');
+    const destroyProgressContainer = document.getElementById('destroy-progress-container');
+    const destroyProgressFill = document.getElementById('destroy-progress-fill');
+    const destroyProgressStatus = document.getElementById('destroy-progress-status');
+    const destroyProgressPercentage = document.getElementById('destroy-progress-percentage');
+    const destroyTerminal = document.getElementById('destroy-terminal');
+    const backToSetupContainer = document.getElementById('back-to-setup-container');
+    const backToSetupBtn = document.getElementById('back-to-setup-btn');
+    
     // Modal elements
     const modalOverlay = document.getElementById('confirmation-modal');
     const modalTitle = document.getElementById('modal-title');
@@ -584,8 +600,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             runTerraformBtn.textContent = 'Deploy n8n Instance';
                             // Re-enable the run terraform button
                             runTerraformBtn.disabled = false;
-                            // Add an event listener to the runTerraformBtn to call runTerraformApply
-                            runTerraformBtn.onclick = runTerraformApply;
+                            // Note: The main event listener already handles the 'Deploy n8n Instance' case
                             
                             showAlert('success', 'Configuration validated successfully! You can now deploy your n8n instance. WARNING: This will create real AWS resources that may incur costs.');
                         }
@@ -738,7 +753,13 @@ document.addEventListener('DOMContentLoaded', function() {
                                 addTerminalLine('\nIMPORTANT: The instance will be up and running correctly after 2-3 minutes.', 'terminal-warning');
                             }
                             
-                            showAlert('success', 'n8n has been successfully deployed to AWS!');
+                            // Show success modal with redirect to instance status
+                            showModalAlert('success', 'n8n has been successfully deployed to AWS! Redirecting to instance status...', function() {
+                                // Redirect to instance status view after clicking OK
+                                setTimeout(function() {
+                                    checkTerraformStatus();
+                                }, 500);
+                            });
                             runTerraformBtn.disabled = true; // Disable the button after successful deployment
                         }
                     })
@@ -924,8 +945,212 @@ document.addEventListener('DOMContentLoaded', function() {
             });
     }
     
+    // Function to check terraform status
+    function checkTerraformStatus() {
+        fetch('http://localhost:5000/api/terraform/status')
+            .then(response => response.json())
+            .then(data => {
+                if (data.provisioned) {
+                    showInstanceStatusView(data.outputs || {});
+                } else {
+                    showSetupWizard();
+                }
+            })
+            .catch(error => {
+                console.error('Error checking terraform status:', error);
+                // If there's an error, show the setup wizard
+                showSetupWizard();
+            });
+    }
+    
+    // Function to show the instance status view
+    function showInstanceStatusView(outputs) {
+        // Hide the main setup wizard
+        document.querySelector('.container .main-content').style.display = 'none';
+        
+        // Show the instance status container
+        instanceStatusContainer.classList.remove('hidden');
+        
+        // Populate the instance details
+        if (outputs.instance_dns) {
+            instanceUrlLink.href = outputs.instance_dns;
+            instanceUrlLink.textContent = outputs.instance_dns;
+        } else {
+            instanceUrlLink.textContent = 'Not available';
+            instanceUrlLink.href = '#';
+        }
+        
+        instanceIp.textContent = outputs.instance_public_ip || 'Not available';
+        instanceId.textContent = outputs.instance_id || 'Not available';
+        sshCommand.textContent = outputs.ssh_connection || 'Not available';
+    }
+    
+    // Function to show the setup wizard
+    function showSetupWizard() {
+        // Show the main setup wizard
+        document.querySelector('.container .main-content').style.display = 'flex';
+        
+        // Hide the instance status container
+        instanceStatusContainer.classList.add('hidden');
+    }
+    
+    // Copy SSH command to clipboard
+    copySshBtn.addEventListener('click', function() {
+        const sshText = sshCommand.textContent;
+        if (sshText && sshText !== 'Not available') {
+            navigator.clipboard.writeText(sshText).then(function() {
+                // Show temporary success feedback
+                const originalIcon = copySshBtn.innerHTML;
+                copySshBtn.innerHTML = '<i class="fas fa-check"></i>';
+                copySshBtn.style.color = 'var(--success-color)';
+                
+                setTimeout(function() {
+                    copySshBtn.innerHTML = originalIcon;
+                    copySshBtn.style.color = '';
+                }, 2000);
+            }).catch(function(err) {
+                console.error('Failed to copy SSH command: ', err);
+            });
+        }
+    });
+    
+    // Handle destroy instance button
+    destroyInstanceBtn.addEventListener('click', function() {
+        const warningContent = `
+            <p><strong>WARNING: This will permanently destroy your n8n instance and all associated AWS resources!</strong></p>
+            <p>This action is IRREVERSIBLE and will result in:</p>
+            <ul>
+                <li>Complete deletion of your EC2 instance</li>
+                <li>Loss of all data stored on the instance</li>
+                <li>Removal of security groups and other resources</li>
+                <li>Deletion of DNS records (if using Cloudflare)</li>
+            </ul>
+            <p>Are you absolutely sure you want to proceed?</p>
+        `;
+        
+        showConfirmationModal('DESTROY INSTANCE', warningContent, function() {
+            runTerraformDestroy();
+        });
+    });
+    
+    // Function to run terraform destroy
+    function runTerraformDestroy() {
+        destroyInstanceBtn.disabled = true;
+        destroyProgressContainer.classList.remove('hidden');
+        destroyTerminal.classList.remove('hidden');
+        
+        // Clear previous terminal output
+        destroyTerminal.innerHTML = '';
+        
+        // Reset progress
+        updateDestroyProgress(10, 'Starting destruction process');
+        
+        // Add initial terminal output
+        addTerminalLine('Starting terraform destroy...', 'terminal-command', destroyTerminal);
+        
+        fetch('http://localhost:5000/api/terraform/destroy', {
+            method: 'POST'
+        })
+        .then(response => response.json())
+        .then(data => {
+            const destroyCommandId = data.command_id;
+            
+            // Poll for command status
+            const destroyInterval = setInterval(() => {
+                fetch(`http://localhost:5000/api/command/${destroyCommandId}`)
+                    .then(response => response.json())
+                    .then(statusData => {
+                        // Process any new output
+                        if (statusData.output) {
+                            const lines = statusData.output.split('\n');
+                            for (const line of lines) {
+                                if (line.trim()) {
+                                    const existingLines = destroyTerminal.textContent;
+                                    if (!existingLines.includes(line.trim())) {
+                                        addTerminalLine(line, 'terminal-output', destroyTerminal);
+                                        
+                                        // Update progress based on output
+                                        if (line.includes('Destroying...')) {
+                                            updateDestroyProgress(40, 'Destroying resources');
+                                        } else if (line.includes('Destruction complete')) {
+                                            updateDestroyProgress(80, 'Resources destroyed');
+                                        } else if (line.includes('Destroy complete')) {
+                                            updateDestroyProgress(100, 'Destruction complete');
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        
+                        // If command is done, finish the process
+                        if (statusData.status === 'done') {
+                            clearInterval(destroyInterval);
+                            
+                            // Check if there was an error
+                            if (statusData.output.toLowerCase().includes('error')) {
+                                addTerminalLine('Error occurred during destruction. Please check the output above.', 'terminal-error', destroyTerminal);
+                                destroyInstanceBtn.disabled = false;
+                                return;
+                            }
+                            
+                            updateDestroyProgress(100, 'Destruction complete');
+                            addTerminalLine('\nSUCCESS! All AWS resources have been destroyed.', 'terminal-success', destroyTerminal);
+                            
+                            // Show the back to setup button
+                            backToSetupContainer.classList.remove('hidden');
+                        }
+                    })
+                    .catch(error => {
+                        clearInterval(destroyInterval);
+                        console.error('Error checking destroy command status:', error);
+                        addTerminalLine(`Error checking command status: ${error.message}`, 'terminal-error', destroyTerminal);
+                        destroyInstanceBtn.disabled = false;
+                    });
+            }, 1000); // Poll every second
+        })
+        .catch(error => {
+            console.error('Error running terraform destroy:', error);
+            addTerminalLine(`Error starting terraform destroy: ${error.message}`, 'terminal-error', destroyTerminal);
+            destroyInstanceBtn.disabled = false;
+        });
+    }
+    
+    // Function to update destroy progress
+    function updateDestroyProgress(percentage, status) {
+        destroyProgressFill.style.width = `${percentage}%`;
+        destroyProgressStatus.textContent = status;
+        destroyProgressPercentage.textContent = `${percentage}%`;
+    }
+    
+    // Handle back to setup button
+    backToSetupBtn.addEventListener('click', function() {
+        // Hide instance status view and show setup wizard
+        showSetupWizard();
+        
+        // Reset the instance status view
+        destroyProgressContainer.classList.add('hidden');
+        destroyTerminal.classList.add('hidden');
+        backToSetupContainer.classList.add('hidden');
+        destroyInstanceBtn.disabled = false;
+        destroyTerminal.innerHTML = '';
+        updateDestroyProgress(0, 'Initializing...');
+    });
+    
+    // Modified addTerminalLine function to accept terminal parameter
+    function addTerminalLine(text, className, terminal = deployTerminal) {
+        const line = document.createElement('div');
+        line.className = `terminal-line ${className}`;
+        line.textContent = text;
+        terminal.appendChild(line);
+        terminal.scrollTop = terminal.scrollHeight;
+    }
+    
     // Check backend availability when the page loads
     window.addEventListener('load', function() {
-        setTimeout(checkBackendAvailability, 1000); // Check after 1 second to allow page to load
+        setTimeout(function() {
+            checkBackendAvailability();
+            // Check terraform status after checking backend availability
+            setTimeout(checkTerraformStatus, 500);
+        }, 1000); // Check after 1 second to allow page to load
     });
 });

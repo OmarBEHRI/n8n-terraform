@@ -450,6 +450,81 @@
         </div>
     </div>
 
+    <!-- Instance Status View (shown when resources are already provisioned) -->
+    <div class="container hidden" id="instance-status-container">
+        <div class="main-content">
+            <div class="form-container">
+                <div class="step-form active" id="instance-status-form">
+                    <h2 class="form-title" id="instance-status-title">n8n Instance Status</h2>
+                    <div class="info-box success" id="instance-running-info">
+                        <div class="info-box-title">
+                            <i class="fas fa-check-circle"></i> Instance Running
+                        </div>
+                        <div class="info-box-content">
+                            Your n8n instance is currently running and accessible.
+                        </div>
+                    </div>
+
+                    <div class="instance-details" id="instance-details">
+                        <div class="detail-item" id="instance-url-item">
+                            <label>Instance URL:</label>
+                            <div class="detail-value">
+                                <a href="#" target="_blank" id="instance-url-link" class="instance-link">Loading...</a>
+                            </div>
+                        </div>
+                        
+                        <div class="detail-item" id="instance-ip-item">
+                            <label>Public IP:</label>
+                            <div class="detail-value" id="instance-ip">Loading...</div>
+                        </div>
+                        
+                        <div class="detail-item" id="instance-id-item">
+                            <label>Instance ID:</label>
+                            <div class="detail-value" id="instance-id">Loading...</div>
+                        </div>
+                        
+                        <div class="detail-item" id="ssh-command-item">
+                            <label>SSH Command:</label>
+                            <div class="detail-value">
+                                <code id="ssh-command">Loading...</code>
+                                <button class="btn btn-small" id="copy-ssh-btn" title="Copy to clipboard">
+                                    <i class="fas fa-copy"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="button-container" id="instance-status-buttons">
+                        <button class="btn btn-danger" id="destroy-instance-btn">
+                            <i class="fas fa-trash"></i> Destroy Instance
+                        </button>
+                    </div>
+
+                    <!-- Destroy Progress Section -->
+                    <div class="progress-container hidden" id="destroy-progress-container">
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="destroy-progress-fill"></div>
+                        </div>
+                        <div class="progress-info">
+                            <span id="destroy-progress-status">Initializing...</span>
+                            <span id="destroy-progress-percentage">0%</span>
+                        </div>
+                    </div>
+
+                    <!-- Destroy Terminal -->
+                    <div class="terminal hidden" id="destroy-terminal"></div>
+
+                    <!-- Back to Setup Button (shown after destroy) -->
+                    <div class="button-container hidden" id="back-to-setup-container">
+                        <button class="btn btn-primary" id="back-to-setup-btn">
+                            <i class="fas fa-arrow-left"></i> Go Back to Setup Guide
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <footer id="main-footer">
         <div class="container">
             <p>n8n Terraform Setup Wizard | All data is processed locally on your machine</p>

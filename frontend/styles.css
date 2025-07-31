@@ -673,6 +673,99 @@ footer {
     background-color: #dde2e6;
 }
 
+/* Instance Status Styles */
+.instance-details {
+    background-color: #f8f9fa;
+    border-radius: var(--border-radius);
+    padding: 20px;
+    margin: 20px 0;
+}
+
+.detail-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.detail-item:last-child {
+    border-bottom: none;
+}
+
+.detail-item label {
+    font-weight: 600;
+    color: var(--secondary-color);
+    min-width: 120px;
+}
+
+.detail-value {
+    flex: 1;
+    text-align: right;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.instance-link {
+    color: var(--primary-color);
+    text-decoration: none;
+    font-weight: 600;
+    padding: 8px 16px;
+    background-color: rgba(101, 99, 255, 0.1);
+    border-radius: var(--border-radius);
+    transition: all 0.3s ease;
+}
+
+.instance-link:hover {
+    background-color: rgba(101, 99, 255, 0.2);
+    text-decoration: none;
+}
+
+.detail-value code {
+    background-color: #e9ecef;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+    color: var(--secondary-color);
+    max-width: 300px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.btn-small {
+    padding: 6px 10px;
+    font-size: 12px;
+    min-width: auto;
+}
+
+.info-box.success {
+    background-color: #e8f5e9;
+    border-left: 4px solid var(--success-color);
+}
+
+.info-box.success .info-box-title {
+    color: var(--success-color);
+}
+
+.btn-danger {
+    background-color: var(--danger-color);
+    color: white;
+}
+
+.btn-danger:hover {
+    background-color: #d32f2f;
+}
+
+.btn-danger:disabled {
+    background-color: #ffcdd2;
+    color: #c8c8c8;
+    cursor: not-allowed;
+}
+
 /* Responsive Styles */
 @media (max-width: 992px) {
     .main-content {
@@ -682,6 +775,24 @@ footer {
     .sidebar {
         flex: 0 0 auto;
         margin-bottom: 20px;
+    }
+}
+
+@media (max-width: 768px) {
+    .detail-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+    
+    .detail-value {
+        justify-content: flex-start;
+        text-align: left;
+        width: 100%;
+    }
+    
+    .detail-value code {
+        max-width: 100%;
     }
 }
 
